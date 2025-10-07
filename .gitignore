@@ -1,0 +1,64 @@
+# ---- OS junk ----
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+Thumbs.db
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+.build/
+dist/
+build/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+ENV/
+*.venv/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Unit test / coverage
+.coverage
+.coverage.*
+.cache/
+htmlcov/
+.pytest_cache/
+
+# MyPy / tools
+.mypy_cache/
+.dmypy.json
+.pyre/
+
+# App data (don’t commit your local chat history)
+.p2p_chat/
+# If your Storage writes JSON in project (adjust if needed):
+storage/*.json
+
+# Secrets / tokens (add your filenames if you use them)
+*.env
+*.env.*
+.envrc
+.ngrok2/ngrok.yml
+ngrok.yml
+
+# Mac quarantine files
+*.icloud

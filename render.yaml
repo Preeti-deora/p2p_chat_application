@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: p2p-relay-server
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python relay_server.py
+    envVars:
+      - key: PORT
+        value: 5000
