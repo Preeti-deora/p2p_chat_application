@@ -261,5 +261,13 @@ if __name__ == '__main__':
     print("- WebSocket for real-time messaging")
     print("Deploy this to Render for global access")
     
-    # Use socketio.run for WebSocket support
-    socketio.run(app, host='0.0.0.0', port=5000, debug=False)
+    # Production deployment for Render
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Use socketio.run with production settings for Render
+    socketio.run(app, 
+                host='0.0.0.0', 
+                port=port, 
+                debug=False,
+                allow_unsafe_werkzeug=True)  # Required for Render deployment
