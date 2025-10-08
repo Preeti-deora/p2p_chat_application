@@ -1,5 +1,5 @@
-# P2P Desktop App Requirements
-# Core dependencies (all standard library - no external deps needed!)
+# P2P Desktop App Requirements with Enhanced Authentication
+# Core dependencies for professional authentication and chat management
 
 # Dependencies for enhanced P2P + relay functionality
 flask>=2.0.0  # For relay server deployment
@@ -7,6 +7,15 @@ flask-socketio>=5.0.0  # For WebSocket message relay
 python-socketio[client]>=5.0.0  # For client WebSocket connections
 requests>=2.25.0  # HTTP client
 gunicorn>=20.0.0  # Production WSGI server for Render
+
+# Dependencies for enhanced UI and profiles
+Pillow>=8.0.0  # For image handling (avatars, profile pictures)
+# Note: tkinter is included with Python standard library
+
+# Enhanced authentication dependencies
+cryptography>=3.4.0  # For password hashing and encryption
+bcrypt>=3.2.0  # For secure password hashing (alternative to PBKDF2)
+email-validator>=1.1.0  # For email validation
 
 # For development/testing
 # pytest>=6.0.0  # For testing (optional)
