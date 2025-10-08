@@ -1,9 +1,11 @@
 # P2P Desktop App Requirements
 # Core dependencies (all standard library - no external deps needed!)
 
-# Optional dependencies for relay server deployment
+# Dependencies for enhanced P2P + relay functionality
 flask>=2.0.0  # For relay server deployment
-requests>=2.25.0  # Alternative HTTP client (optional)
+flask-socketio>=5.0.0  # For WebSocket message relay
+python-socketio[client]>=5.0.0  # For client WebSocket connections
+requests>=2.25.0  # HTTP client
 
 # For development/testing
 # pytest>=6.0.0  # For testing (optional)
