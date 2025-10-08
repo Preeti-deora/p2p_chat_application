@@ -213,7 +213,7 @@ def handle_disconnect():
 
 @socketio.on('register')
 def handle_register(data):
-    """Register user for message relay"""
+    """Register user for message relay and deliver queued messages"""
     user_id = data.get('user_id')
     if user_id:
         connected_users[request.sid] = {
@@ -223,10 +223,29 @@ def handle_register(data):
         join_room(user_id)  # Join room for direct messaging
         emit('registered', {'user_id': user_id})
         print(f"User {user_id} registered for message relay")
+        
+        # Deliver any queued messages
+        with lock:
+            if user_id in messages and messages[user_id]:
+                queued_messages = messages[user_id].copy()
+                messages[user_id] = []  # Clear queue
+                
+                print(f"📬 Delivering {len(queued_messages)} queued messages to {user_id}")
+                for msg in queued_messages:
+                    emit('message', msg)
+                    # Notify original sender that queued message was delivered
+                    socketio.emit('delivered', {
+                        'recipient': user_id,
+                        'message_id': msg.get('message_id', 'unknown'),
+                        'actual_delivery': True,
+                        'was_queued': True
+                    }, room=msg['sender'])
+                
+                print(f"✅ All queued messages delivered to {user_id}")
 
 @socketio.on('send_message')
 def handle_ws_message(data):
-    """Handle WebSocket message sending"""
+    """Handle WebSocket message sending with proper offline queuing"""
     if request.sid not in connected_users:
         emit('error', {'message': 'Not registered'})
         return
@@ -234,18 +253,44 @@ def handle_ws_message(data):
     sender_id = connected_users[request.sid]['user_id']
     recipient_id = data.get('recipient')
     message_text = data.get('text')
+    message_id = data.get('message_id', 'unknown')
     
     if recipient_id and message_text:
-        # Send message to recipient's room
-        socketio.emit('message', {
+        # Check if recipient is currently online
+        recipient_online = False
+        for sid, user_info in connected_users.items():
+            if user_info['user_id'] == recipient_id:
+                recipient_online = True
+                break
+        
+        message_obj = {
             'sender': sender_id,
             'text': message_text,
-            'timestamp': time.time()
-        }, room=recipient_id)
+            'timestamp': time.time(),
+            'message_id': message_id
+        }
         
-        # Confirm delivery to sender
-        emit('delivered', {'recipient': recipient_id})
-        print(f"Relayed message from {sender_id} to {recipient_id}")
+        if recipient_online:
+            # Recipient is online - deliver immediately
+            socketio.emit('message', message_obj, room=recipient_id)
+            emit('delivered', {
+                'recipient': recipient_id, 
+                'message_id': message_id,
+                'actual_delivery': True
+            })
+            print(f"✅ Delivered message from {sender_id} to {recipient_id} (online)")
+        else:
+            # Recipient is offline - queue message
+            with lock:
+                if recipient_id not in messages:
+                    messages[recipient_id] = []
+                messages[recipient_id].append(message_obj)
+            
+            emit('message_queued', {
+                'recipient': recipient_id,
+                'message_id': message_id
+            })
+            print(f"📨 Queued message from {sender_id} for offline user {recipient_id}")
     else:
         emit('error', {'message': 'Missing recipient or text'})
 
